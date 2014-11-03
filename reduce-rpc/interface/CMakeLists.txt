@@ -5,10 +5,9 @@ AUX_SOURCE_DIRECTORY(. DIR_SRC)
 
 SET(header_files
     ./ILocaleEndpoint.h
-    ./ILocaleObj.h
     ./IRemoteEndpoint.h
-    ./IRemoteObj.h
     ./ITimeCallback.h
+    ./IInterface.h
 )
 
 SET(SRC_LIST 
