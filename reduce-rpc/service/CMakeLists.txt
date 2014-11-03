@@ -4,6 +4,8 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 AUX_SOURCE_DIRECTORY(. DIR_SRC)
 
 SET(header_files
+    ./acceptservice.h
+    ./connectservice.h
     ./service.h
     ./session.h
     ./tempsession.h

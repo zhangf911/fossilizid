@@ -34,8 +34,14 @@ struct semaphore;
 
 class service{
 public:
-	service(char * ip, short port);
+	service();
 	~service();
+
+protected:
+	virtual void run_network() = 0;
+
+protected:
+	void run_logic();
 
 public:
 	void create_rpcsession(uuid epuuid, remote_queue::CHANNEL ch);
@@ -43,10 +49,6 @@ public:
 	boost::shared_ptr<session> get_rpcsession(uuid epuuid);
 
 public:
-	void run_network();
-
-	void run_logic();
-
 	void register_global_obj(boost::shared_ptr<obj> obj);
 
 	boost::uint64_t unixtime();
@@ -74,23 +76,19 @@ public:
 
 	void wake_up(context::context * _context);
 
-private:
+protected:
 	boost::atomic_bool isrun;
 	boost::thread_group _thread_group;
 
-private:
+protected:
 	boost::uint64_t clockstamp;
 	boost::uint64_t timestamp;
 
-private:
+protected:
 	boost::mutex mu_map_global_obj;
 	std::unordered_map<uuid, boost::shared_ptr<obj> > map_global_obj;
 	
-private:
-	remote_queue::ENDPOINT ep;
-	remote_queue::QUEUE que;
-	remote_queue::ACCEPTOR acp;
-
+protected:
 	boost::shared_mutex mu_map_session;
 	std::unordered_map<remote_queue::CHANNEL, boost::shared_ptr<session> > map_session;
 
@@ -102,7 +100,7 @@ private:
 	boost::shared_mutex mu_map_uuid_session;
 	std::unordered_map<uuid, boost::shared_ptr<rpcsession> > map_uuid_session;
 
-private:
+protected:
 	boost::mutex mu_wait_context_list;
 	std::unordered_map<uuid, std::tuple<uuid, context::context *, boost::uint64_t> > wait_context_list;
 

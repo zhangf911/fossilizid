@@ -21,17 +21,11 @@ boost::uint64_t _clock(){
 namespace Fossilizid{
 namespace reduce_rpc {
 
-service::service(char * ip, short port){
+service::service(){
 	isrun.store(true);
 
 	clockstamp = _clock();
 	timestamp = time(0);
-
-	ep = remote_queue::endpoint(ip, port);
-
-	que = remote_queue::queue();
-
-	acp = remote_queue::acceptor(que, ep);
 
 	_thread_group.create_thread(boost::bind(&service::run_network, this));
 	_thread_group.create_thread(boost::bind(&service::run_logic, this));
@@ -41,8 +35,6 @@ service::~service(){
 	isrun.store(false);
 
 	_thread_group.join_all();
-
-	remote_queue::close(que);
 
 	for (auto v : map_session){
 		remote_queue::close(v.first);
@@ -87,49 +79,6 @@ boost::shared_ptr<session> service::get_rpcsession(uuid epuuid){
 	}
 
 	return static_cast<boost::shared_ptr<session> >(it->second);
-}
-
-void service::run_network(){
-	while (isrun.load()){
-		remote_queue::EVENT ev = remote_queue::queue(que);
-		switch (ev.type)
-		{
-		case remote_queue::event_type_none:
-			break;
-				
-		case remote_queue::event_type_accept:
-			{
-				remote_queue::CHANNEL ch = remote_queue::accept(ev.handle.acp);
-				if (ch != 0){
-					boost::unique_lock<boost::shared_mutex> lock(mu_map_session);
-					map_session[ch] = boost::shared_ptr<session>(new tempsession(ch));
-				}
-			}
-			break;
-
-		case remote_queue::event_type_recv:
-			{	
-				remote_queue::CHANNEL ch = ev.handle.ch;
-				
-				Json::Value value;
-				while (remote_queue::pop(ch, value, json_parser::buf_to_json)){
-					boost::shared_lock<boost::shared_mutex> lock(mu_map_session);
-					map_session[ch]->do_pop(map_session[ch], value);
-				}
-			}
-			break;
-
-		case remote_queue::event_type_disconnect:
-			{
-				map_session.erase(ev.handle.ch);
-				remote_queue::close(ev.handle.ch);
-			}
-			break;
-
-		default:
-			break;
-		}
-	}
 }
 
 void service::run_logic(){
@@ -189,6 +138,7 @@ void service::run_logic(){
 
 	context::context _loop_main_context(_loop_main);
 	tsp_loop_main_context.reset(&_loop_main_context);
+	_loop_main_context();
 }
 
 void service::set_current_context(context::context * _context){
@@ -206,8 +156,10 @@ void service::wait(uuid _uuid, context::context * _context, boost::uint64_t wait
 	}
 
 	context::context * _tsp_loop_main_context = tsp_loop_main_context.get();
-	if (_tsp_loop_main_context == 0){
+	if (_tsp_loop_main_context != 0){
 		wake_up(_tsp_loop_main_context);
+	}else{
+		throw std::exception("_tsp_loop_main_context is null");
 	}
 }
 
