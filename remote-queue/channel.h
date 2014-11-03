@@ -16,7 +16,7 @@
 namespace Fossilizid{
 namespace remote_queue {
 
-CHANNEL connect(ENDPOINT ep);
+CHANNEL connect(ENDPOINT ep, QUEUE que = 0);
 
 } /* namespace remote_queue */
 } /* namespace Fossilizid */

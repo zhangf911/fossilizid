@@ -20,7 +20,7 @@
 namespace Fossilizid{
 namespace remote_queue {
 
-CHANNEL connect(ENDPOINT ep) {
+CHANNEL connect(ENDPOINT ep, QUEUE que) {
 	SOCKET s = socket(AF_INET, SOCK_STREAM, 0);
 
 	SOCKADDR_IN addr;
@@ -47,7 +47,7 @@ CHANNEL connect(ENDPOINT ep) {
 	}
 
 	channelimpl * ch = pool::objpool<channelimpl>::allocator(1);
-	new (ch) channelimpl(0, s);
+	new (ch) channelimpl(que, s);
 
 	if (ch->que != 0){
 		WSABUF * wsabuf = pool::objpool<WSABUF>::allocator(1);
