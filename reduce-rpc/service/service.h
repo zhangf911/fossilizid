@@ -14,12 +14,14 @@
 #include <unordered_map>
 #include <tuple>
 #include <stack>
+#include <set>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
 #include <boost/atomic.hpp>
 
 #include "../../context/context.h"
+#include "../../third_party/json/json_protocol.h"
 
 #include "uuid.h"
 
@@ -37,23 +39,38 @@ public:
 	service();
 	~service();
 
-protected:
-	virtual void run_network() = 0;
-
-protected:
-	void run_logic();
+public:
+	boost::uint64_t unixtime();
 
 public:
-	void create_rpcsession(uuid epuuid, remote_queue::CHANNEL ch);
+	uuid epuuid();
+
+public:	
+	void init();
+
+	void join();
+
+public:
+	boost::shared_ptr<session> create_rpcsession(uuid epuuid, remote_queue::CHANNEL ch);
 
 	boost::shared_ptr<session> get_rpcsession(uuid epuuid);
 
 public:
+	typedef std::unordered_map<uuid, boost::shared_ptr<obj> >::iterator global_obj_iterator;
+
 	void register_global_obj(boost::shared_ptr<obj> obj);
 
-	boost::uint64_t unixtime();
+	boost::shared_ptr<obj> get_global_obj(std::string classname);
 
-public:	
+	void global_obj_lock();
+
+	void global_obj_unlock();
+
+	global_obj_iterator global_obj_begin();
+
+	global_obj_iterator global_obj_end();
+
+public:
 	void push_current_session(boost::shared_ptr<session> session);
 
 	void pop_current_session();
@@ -72,9 +89,15 @@ public:
 
 	context::context * get_current_context();
 
-	void wait(uuid _uuid, context::context * _context, boost::uint64_t wait_time);
+	boost::shared_ptr<Json::Value> wait(uuid _uuid, boost::uint64_t wait_time);
 
 	void wake_up(context::context * _context);
+
+protected:
+	virtual void run_network() = 0;
+
+protected:
+	uuid _epuuid;
 
 protected:
 	boost::atomic_bool isrun;
@@ -87,6 +110,7 @@ protected:
 protected:
 	boost::mutex mu_map_global_obj;
 	std::unordered_map<uuid, boost::shared_ptr<obj> > map_global_obj;
+	std::unordered_map<std::string, boost::shared_ptr<obj> > map_global_obj_classname;
 	
 protected:
 	boost::shared_mutex mu_map_session;
@@ -102,11 +126,16 @@ protected:
 
 protected:
 	boost::mutex mu_wait_context_list;
-	std::unordered_map<uuid, std::tuple<uuid, context::context *, boost::uint64_t> > wait_context_list;
+	std::unordered_map<uuid, std::tuple<uuid, context::context *, boost::uint64_t, boost::shared_ptr<Json::Value> > > wait_context_list;
+	
+	boost::mutex mu_wake_up_set;
+	std::set<uuid> wake_up_set;
 
 	boost::thread_specific_ptr<context::context> tsp_context;
+
 	boost::thread_specific_ptr<context::context> tsp_loop_main_context;
 
+protected:
 	boost::thread_specific_ptr<std::stack<boost::shared_ptr<obj> > > tsp_current_obj;
 
 };

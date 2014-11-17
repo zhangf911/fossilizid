@@ -26,6 +26,37 @@ void rpcsession::reset(remote_queue::CHANNEL _ch){
 	ch = _ch;
 }
 
+void rpcsession::register_global_obj(boost::shared_ptr<obj> obj){
+	boost::mutex::scoped_lock lock(mu_mapremoteobj);
+	mapremoteobj.insert(std::make_pair(obj->objid(), obj));
+	mapremoteobj_classname.insert(std::make_pair(obj->class_name(), obj));
+}
+
+boost::shared_ptr<obj> rpcsession::get_global_obj(std::string classname){
+	boost::mutex::scoped_lock lock(mu_mapremoteobj);
+	auto find = mapremoteobj.find(classname);
+	if (find != mapremoteobj_classname.end()){
+		return find->second;
+	}
+	return nullptr;
+}
+
+void rpcsession::global_obj_lock(){
+	mu_mapremoteobj.lock();
+}
+
+void rpcsession::global_obj_unlock(){
+	mu_mapremoteobj.unlock();
+}
+
+rpcsession::global_obj_iterator rpcsession::global_obj_begin(){
+	return mapremoteobj.begin();
+}
+
+service::global_obj_iterator rpcsession::global_obj_end(){
+	return mapremoteobj.end();
+}
+
 void rpcsession::do_time(boost::uint64_t time){
 	for (auto obj : mapremoteobj){
 		obj.second->call_do_time(time);

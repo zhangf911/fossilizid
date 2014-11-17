@@ -24,11 +24,12 @@ namespace reduce_rpc {
 service::service(){
 	isrun.store(true);
 
+	_epuuid = UUID();
+
 	clockstamp = _clock();
 	timestamp = time(0);
 
 	_thread_group.create_thread(boost::bind(&service::run_network, this));
-	_thread_group.create_thread(boost::bind(&service::run_logic, this));
 }
 
 service::~service(){
@@ -42,7 +43,81 @@ service::~service(){
 	map_session.clear();
 }
 
-void service::create_rpcsession(uuid epuuid, remote_queue::CHANNEL ch){
+void service::init(){
+	context::context ct = context::make_context();
+
+	std::function<context::context * () > _wake_up = [this](){
+		boost::mutex::scoped_lock lock(mu_wait_context_list);
+
+		{
+			boost::mutex::scoped_lock lock(mu_wake_up_set);
+			for (auto it = wake_up_set.begin(); it != wake_up_set.end();){
+				auto find = wait_context_list.find(*it);
+				it = wake_up_set.erase(it);
+				if (find != wait_context_list.end()){
+					context::context * _context = std::get<1>(find->second);
+					wait_context_list.erase(find);
+					return _context;
+				}
+			}
+		}
+
+		for (auto it = wait_context_list.begin(); it != wait_context_list.end();){
+			if (std::get<2>(it->second) >= unixtime()){
+				context::context * _context = std::get<1>(it->second);
+				return _context;
+			}
+			else{
+				it++;
+			}
+		}
+
+		return (context::context *)0;
+	};
+
+	std::function<void()> _run_logic = [this, _wake_up](){
+		timestamp += _clock() - clockstamp;
+
+		boost::shared_lock<boost::shared_mutex> lock(mu_map_session);
+		for (auto var : map_session){
+			push_current_session(var.second);
+			var.second->do_logic();
+			var.second->do_time(timestamp);
+			pop_current_session();
+		}
+	};
+
+	std::function<void()> _loop_main = [this, _run_logic, _wake_up](){
+		while (1){
+			context::context * _context = get_current_context();
+
+			_run_logic();
+
+			context::context * _run_logic_context = _wake_up();
+			if (_run_logic_context != 0){
+				set_current_context(_run_logic_context);
+				context::yield(_run_logic_context);
+			}
+
+			context::yield(_context);
+		}
+	};
+
+	context::context _loop_main_context(_loop_main);
+	tsp_loop_main_context.reset(&_loop_main_context);
+}
+
+void service::join(){
+	context::context * _loop_main_context = tsp_loop_main_context.get();
+	set_current_context(_loop_main_context);
+	context::yield(_loop_main_context);
+}
+
+uuid service::epuuid(){
+	return _epuuid;
+}
+
+boost::shared_ptr<session> service::create_rpcsession(uuid epuuid, remote_queue::CHANNEL ch){
 	{
 		boost::unique_lock<boost::shared_mutex> lock(mu_map_session);
 		map_session.erase(ch);
@@ -55,7 +130,6 @@ void service::create_rpcsession(uuid epuuid, remote_queue::CHANNEL ch){
 	}
 
 	{
-
 		boost::unique_lock<boost::shared_mutex> lock(mu_map_uuid_session);
 		std::unordered_map<uuid, boost::shared_ptr<rpcsession> >::iterator it = map_uuid_session.find(epuuid);
 		if (it == map_uuid_session.end()){
@@ -69,6 +143,8 @@ void service::create_rpcsession(uuid epuuid, remote_queue::CHANNEL ch){
 			map_session[ch] = static_cast<boost::shared_ptr<session> >(map_uuid_session[epuuid]);
 		}
 	}
+
+	return map_uuid_session[epuuid];
 }
 
 boost::shared_ptr<session> service::get_rpcsession(uuid epuuid){
@@ -81,66 +157,6 @@ boost::shared_ptr<session> service::get_rpcsession(uuid epuuid){
 	return static_cast<boost::shared_ptr<session> >(it->second);
 }
 
-void service::run_logic(){
-	std::function<context::context * () > _wake_up = [this](){
-		boost::mutex::scoped_lock lock(mu_wait_context_list);
-		for (std::unordered_map<uuid, std::tuple<uuid, context::context *, boost::uint64_t> >::iterator it = wait_context_list.begin(); it != wait_context_list.end();){
-			if (std::get<2>(it->second) >= unixtime()){
-				context::context * _context = std::get<1>(it->second);
-				it = wait_context_list.erase(it);
-				return _context;
-			}
-			else{
-				it++;
-			}
-		}
-
-		return (context::context *)0;
-	};
-
-	std::function<void()> _run_logic = [this, _wake_up](){
-		while (isrun.load()){
-			{
-				timestamp += _clock() - clockstamp;
-
-				boost::shared_lock<boost::shared_mutex> lock(mu_map_session);
-				for (auto var : map_session){
-					push_current_session(var.second);
-
-					var.second->do_logic();
-
-					var.second->do_time(timestamp);
-
-					pop_current_session();
-				}
-			}
-
-			context::context * _context = _wake_up();
-			if (_context != 0){
-				set_current_context(_context);
-				(*_context)();
-			}
-		}
-	};
-
-	std::function<void()> _loop_main = [this, _run_logic, _wake_up](){
-		while (isrun.load()){
-			context::context * _run_logic_context = _wake_up();
-
-			if (_run_logic_context == 0){
-				_run_logic_context = new context::context(_run_logic);
-			}
-
-			set_current_context(_run_logic_context);
-			(*_run_logic_context)();
-		}
-	};
-
-	context::context _loop_main_context(_loop_main);
-	tsp_loop_main_context.reset(&_loop_main_context);
-	_loop_main_context();
-}
-
 void service::set_current_context(context::context * _context){
 	tsp_context.reset(_context);
 }
@@ -149,18 +165,25 @@ context::context * service::get_current_context(){
 	return tsp_context.get();
 }
 
-void service::wait(uuid _uuid, context::context * _context, boost::uint64_t wait_time){
+boost::shared_ptr<Json::Value> service::wait(uuid _uuid, boost::uint64_t wait_time){
+	context::context * _context = get_current_context();
+
 	{
 		boost::mutex::scoped_lock lock(mu_wait_context_list);
-		wait_context_list.insert(std::make_pair(_uuid, std::make_tuple(_uuid, _context, wait_time)));
+		wait_context_list.insert(std::make_pair(_uuid, std::make_tuple(_uuid, _context, wait_time, boost::shared_ptr<Json::Value>(0))));
 	}
 
 	context::context * _tsp_loop_main_context = tsp_loop_main_context.get();
 	if (_tsp_loop_main_context != 0){
 		wake_up(_tsp_loop_main_context);
-	}else{
+	}
+	else{
 		throw std::exception("_tsp_loop_main_context is null");
 	}
+
+	boost::shared_ptr<Json::Value> value = std::get<3>(wait_context_list[_uuid]);
+	
+	return value;
 }
 
 void service::wake_up(context::context * _context){
@@ -170,6 +193,32 @@ void service::wake_up(context::context * _context){
 void service::register_global_obj(boost::shared_ptr<obj> obj){
 	boost::mutex::scoped_lock lock(mu_map_global_obj);
 	map_global_obj.insert(std::make_pair(obj->objid(), obj));
+	map_global_obj_classname.insert(std::make_pair(obj->class_name(), obj));
+}
+
+boost::shared_ptr<obj> service::get_global_obj(std::string classname){
+	boost::mutex::scoped_lock lock(mu_map_global_obj);
+	auto find = map_global_obj_classname.find(classname);
+	if (find != map_global_obj_classname.end()){
+		return find->second;
+	}
+	return nullptr;
+}
+
+void service::global_obj_lock(){
+	mu_map_global_obj.lock();
+}
+
+void service::global_obj_unlock(){
+	mu_map_global_obj.unlock();
+}
+
+service::global_obj_iterator service::global_obj_begin(){
+	return map_global_obj.begin();
+}
+
+service::global_obj_iterator service::global_obj_end(){
+	return map_global_obj.end();
 }
 
 boost::uint64_t service::unixtime(){

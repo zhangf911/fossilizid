@@ -14,8 +14,9 @@
 namespace Fossilizid{
 namespace reduce_rpc {
 
-tempsession::tempsession(remote_queue::CHANNEL _ch){
+tempsession::tempsession(remote_queue::CHANNEL _ch, std::string _service_class){
 	ch = _ch;
+	service_class = _service_class;
 }
 
 tempsession::~tempsession(){
@@ -33,7 +34,13 @@ void tempsession::do_pop(boost::shared_ptr<session> session, Json::Value & value
 	if (eventtype.asString() == "rpc_event"){
 	} else if (eventtype.asString() == "create_obj"){
 	} else if (eventtype.asString() == "connect_server"){
-		do_connect_server(session, value);
+		if (service_class == "acceptservice"){
+			do_connect_server(session, value);
+		}
+	} else if (eventtype.asString() == "connect_server_ret"){
+		if (service_class == "connectservice"){
+			do_connect_server(session, value);
+		}
 	}
 }
 
@@ -48,24 +55,52 @@ bool tempsession::do_push(boost::shared_ptr<session> session, Json::Value & valu
 void tempsession::do_logic(){
 }
 
-void tempsession::do_connect_server(boost::shared_ptr<session> session, Json::Value & value){
+void tempsession::do_connect_server(boost::shared_ptr<session> _session, Json::Value & value){
 	Json::Value _epuuid = value.get("epuuid", Json::nullValue);
 	if (_epuuid.isNull()){
 		return;
 	}
+	boost::shared_ptr<session> _rpc = _service_handle->create_rpcsession(_epuuid.asString(), ch);
 
-	_service_handle->create_rpcsession(_epuuid.asString(), ch);
+	if (service_class == "acceptservice"){
+		Json::Value _suuid = value.get("suuid", Json::nullValue);
+		if (_suuid.isNull()){
+			return;
+		}
 
-	Json::Value _suuid = value.get("suuid", Json::nullValue);
-	if (_suuid.isNull()){
-		return;
+		Json::Value ret;
+		ret["epuuid"] = _epuuid.asString();
+		ret["suuid"] = _suuid.asString();
+		ret["ret"] = "OK";
+		ret["globalobjarray"] = Json::Value(Json::arrayValue);
+
+		_service_handle->global_obj_lock();
+		for (service::global_obj_iterator it = _service_handle->global_obj_begin(); it != _service_handle->global_obj_end(); it++){
+			Json::Value objinfo;
+			objinfo["classname"] = it->second->class_name();
+			objinfo["objid"] = it->second->objid();
+			ret["globalobjarray"].append(objinfo);
+		}
+		_service_handle->global_obj_unlock();
+
+		do_push(_session, ret);
 	}
+	else if (service_class == "connectservice"){
+		Json::Value _suuid = value.get("suuid", Json::nullValue);
+		if (_suuid.isNull()){
+			return;
+		}
 
-	Json::Value ret;
-	ret["epuuid"] = _epuuid.asString();
-	ret["suuid"] = _suuid.asString();
-	ret["ret"] = "OK";
-	do_push(session, ret);
+		Json::Value globalobjarray = value.get("globalobjarray", Json::nullValue);
+		if (globalobjarray.isArray()){
+			for (int i = 0; i < (int)globalobjarray.size(); i++){
+				Json::Value objinfo;
+				objinfo["classname"] = globalobjarray[i]["classname"].asString();
+				objinfo["objid"] = globalobjarray[i]["objid"].asString();
+				_service_handle->register_global_obj(boost::shared_ptr<obj>(new remote_obj(_rpc, objinfo)));
+			}
+		}
+	}
 }
 
 } /* namespace reduce_rpc */

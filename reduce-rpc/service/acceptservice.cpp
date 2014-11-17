@@ -37,7 +37,7 @@ void acceptservice::run_network(){
 				remote_queue::CHANNEL ch = remote_queue::accept(ev.handle.acp);
 				if (ch != 0){
 					boost::unique_lock<boost::shared_mutex> lock(mu_map_session);
-					map_session[ch] = boost::shared_ptr<session>(new tempsession(ch));
+					map_session[ch] = boost::shared_ptr<session>(new tempsession(ch, "acceptservice"));
 				}
 			}
 			break;
@@ -48,8 +48,22 @@ void acceptservice::run_network(){
 				
 				Json::Value value;
 				while (remote_queue::pop(ch, value, json_parser::buf_to_json)){
-					boost::shared_lock<boost::shared_mutex> lock(mu_map_session);
-					map_session[ch]->do_pop(map_session[ch], value);
+					Json::Value _suuid = value.get("suuid", Json::nullValue);
+					if (_suuid.isNull()){
+						continue;
+					}
+
+					{
+						boost::shared_lock<boost::shared_mutex> lock(mu_map_session);
+						map_session[ch]->do_pop(map_session[ch], value);
+					}
+
+					boost::mutex::scoped_lock lock(mu_wait_context_list);
+					auto finduuidcontex = wait_context_list.find(_suuid.asString());
+					if (finduuidcontex != wait_context_list.end()){
+						boost::mutex::scoped_lock lock(mu_wake_up_set);
+						wake_up_set.insert(_suuid.asString());
+					}
 				}
 			}
 			break;

@@ -31,9 +31,12 @@ private:
 
 	boost::function<void()> contextfn;
 
-	friend void yield(context & ct);
+	friend void yield(context * ct);
+	friend context make_context();
 
 };
+
+context make_context();
 
 void yield(context * ct);
 

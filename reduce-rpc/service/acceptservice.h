@@ -19,7 +19,7 @@ public:
 	acceptservice(char * ip, short port);
 	~acceptservice();
 
-public:
+private:
 	void run_network();
 
 private:

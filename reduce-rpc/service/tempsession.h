@@ -26,7 +26,7 @@ class obj;
 
 class tempsession : public session{
 public:
-	tempsession(remote_queue::CHANNEL _ch);
+	tempsession(remote_queue::CHANNEL _ch, std::string service_class);
 	~tempsession();
 
 public:
@@ -42,7 +42,8 @@ private:
 	void do_connect_server(boost::shared_ptr<session> session, Json::Value & value);
 
 private:
-	remote_queue::CHANNEL ch;
+	remote_queue::CHANNEL ch; 
+	std::string service_class;
 
 };
 

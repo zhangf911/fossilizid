@@ -28,6 +28,9 @@ public:
 	remote_obj(boost::shared_ptr<session> session, Json::Value & value);
 	~remote_obj();
 
+public:
+	void call_rpc_mothed(Json::Value & value, boost::function<void(Json::Value & ) > rpccallback);
+
 private:
 	virtual void call_rpc_mothed(Json::Value & value);
 

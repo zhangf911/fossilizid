@@ -18,8 +18,9 @@ public:
 	~connectservice();
 	
 public:
-	void connect(char * ip, short port);
+	boost::shared_ptr<session> connect(char * ip, short port);
 
+private:
 	void run_network();
 
 private:

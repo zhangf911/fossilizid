@@ -33,6 +33,15 @@ remote_obj::remote_obj(boost::shared_ptr<session> session, Json::Value & value){
 remote_obj::~remote_obj(){
 }
 
+void remote_obj::call_rpc_mothed(Json::Value & value, boost::function<void(Json::Value &) > rpccallback){
+	value["suuid"] = UUID();
+	
+	boost::mutex::scoped_lock lock(mu_call_rpc_mothed_ret_callback);
+	call_rpc_mothed_ret_callback.insert(std::make_pair(value["suuid"].asString(), rpccallback));
+	
+	call_rpc_mothed(value);
+}
+
 void remote_obj::call_rpc_mothed(Json::Value & value){
 	Json::Value _uuid = value.get("suuid", Json::nullValue);
 	if (_uuid.isNull()){

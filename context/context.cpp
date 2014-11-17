@@ -34,9 +34,17 @@ void context::operator()(){
 #endif 
 }
 
+context make_context(){
+	context ct(0);
+#ifdef _WINDOWS
+	ct.pFiber = ConvertThreadToFiber(0);
+#endif
+	return ct;
+}
+
 void yield(context * ct){
 #ifdef _WINDOWS
-	SwitchToFiber(ct.pFiber);
+	SwitchToFiber(ct->pFiber);
 #endif 
 }
 

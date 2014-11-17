@@ -32,6 +32,21 @@ public:
 	void reset(remote_queue::CHANNEL ch);
 
 public:
+	typedef std::unordered_map<uuid, boost::shared_ptr<obj> >::iterator global_obj_iterator;
+
+	void register_global_obj(boost::shared_ptr<obj> obj);
+
+	boost::shared_ptr<obj> get_global_obj(std::string classname);
+
+	void global_obj_lock();
+
+	void global_obj_unlock();
+
+	global_obj_iterator global_obj_begin();
+
+	global_obj_iterator global_obj_end();
+
+public:
 	virtual void do_time(boost::uint64_t time);
 
 	virtual void do_pop(boost::shared_ptr<session> session, Json::Value & value);
@@ -44,7 +59,9 @@ private:
 	remote_queue::CHANNEL ch;
 
 private:
+	boost::mutex mu_mapremoteobj;
 	std::unordered_map<uuid, boost::shared_ptr<obj> > mapremoteobj;
+	std::unordered_map<std::string, boost::shared_ptr<obj> > mapremoteobj_classname;
 
 };
 

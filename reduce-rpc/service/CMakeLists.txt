@@ -14,6 +14,7 @@ SET(header_files
     ./locale_obj.h
     ./obj.h
     ./uuid.h
+    ./protodescription.h
 )
 
 SET(SRC_LIST 
