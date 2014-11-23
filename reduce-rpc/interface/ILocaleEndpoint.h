@@ -12,7 +12,16 @@
 namespace Fossilizid{
 namespace reduce_rpc{
 
-#define ILocaleEndpoint(ip, port) service(ip, port);
+class ILocaleEndpoint{
+public:
+	ILocaleEndpoint(char * ip, short port) : _service(ip, port){
+		_service.init();
+	}
+
+private:
+	acceptservice _service;
+
+};
 
 } /* namespace reduce_rpc */
 } /* namespace Fossilizid */

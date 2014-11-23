@@ -8,14 +8,22 @@
 #define _IRemoteEndpoint_h
 
 #include "../service/connectservice.h"
+	
+namespace Fossilizid{	
+namespace reduce_rpc{	
 
-namespace Fossilizid{
-namespace reduce_rpc{
+class IRemoteEndpoint{
+public:	
+	IRemoteEndpoint(){
+		_connectservice.init();
+	}
 
-class IRemoteEndpoint : public connectservice{
-public:
-	void ConnectEndpoint(char * ip, short port);
-};
+	void ConnectService(char * ip, short port);
+
+private:
+	connectservice _connectservice;
+
+};	
 
 } /* namespace reduce_rpc */
 } /* namespace Fossilizid */
