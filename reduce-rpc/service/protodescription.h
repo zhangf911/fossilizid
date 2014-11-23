@@ -11,7 +11,7 @@ namespace Fossilizid{
 namespace reduce_rpc{
 
 /*******************************/
-/*            uuid             */
+/*          event key          */
 /*******************************/
 
 /*
@@ -29,6 +29,10 @@ namespace reduce_rpc{
  *  当前obj唯一ID
  */
 
+/*
+ *  eventtype
+ *  本次消息，消息类型
+ */
 
 
 /*******************************/
@@ -49,12 +53,6 @@ namespace reduce_rpc{
  *  connect_server
  *  连接服务器
  */
-
-/*
- *  connect_server_ret
- *  连接服务器应答
- */
-
 
 
 /*******************************/

@@ -24,8 +24,6 @@ namespace reduce_rpc {
 service::service(){
 	isrun.store(true);
 
-	_epuuid = UUID();
-
 	clockstamp = _clock();
 	timestamp = time(0);
 
@@ -113,10 +111,6 @@ void service::join(){
 	context::yield(_loop_main_context);
 }
 
-uuid service::epuuid(){
-	return _epuuid;
-}
-
 boost::shared_ptr<session> service::create_rpcsession(uuid epuuid, remote_queue::CHANNEL ch){
 	{
 		boost::unique_lock<boost::shared_mutex> lock(mu_map_session);
@@ -175,7 +169,7 @@ boost::shared_ptr<Json::Value> service::wait(uuid _uuid, boost::uint64_t wait_ti
 
 	context::context * _tsp_loop_main_context = tsp_loop_main_context.get();
 	if (_tsp_loop_main_context != 0){
-		wake_up(_tsp_loop_main_context);
+		context::yield(_tsp_loop_main_context);
 	}
 	else{
 		throw std::exception("_tsp_loop_main_context is null");
@@ -184,10 +178,6 @@ boost::shared_ptr<Json::Value> service::wait(uuid _uuid, boost::uint64_t wait_ti
 	boost::shared_ptr<Json::Value> value = std::get<3>(wait_context_list[_uuid]);
 	
 	return value;
-}
-
-void service::wake_up(context::context * _context){
-	yield(_context);
 }
 
 void service::register_global_obj(boost::shared_ptr<obj> obj){

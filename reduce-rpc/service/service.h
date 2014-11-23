@@ -42,9 +42,6 @@ public:
 public:
 	boost::uint64_t unixtime();
 
-public:
-	uuid epuuid();
-
 public:	
 	void init();
 
@@ -91,13 +88,8 @@ public:
 
 	boost::shared_ptr<Json::Value> wait(uuid _uuid, boost::uint64_t wait_time);
 
-	void wake_up(context::context * _context);
-
 protected:
 	virtual void run_network() = 0;
-
-protected:
-	uuid _epuuid;
 
 protected:
 	boost::atomic_bool isrun;

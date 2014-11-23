@@ -34,14 +34,8 @@ void tempsession::do_pop(boost::shared_ptr<session> session, Json::Value & value
 	if (eventtype.asString() == "rpc_event"){
 	} else if (eventtype.asString() == "create_obj"){
 	} else if (eventtype.asString() == "connect_server"){
-		if (service_class == "acceptservice"){
-			do_connect_server(session, value);
-		}
-	} else if (eventtype.asString() == "connect_server_ret"){
-		if (service_class == "connectservice"){
-			do_connect_server(session, value);
-		}
-	}
+		do_connect_server(session, value);
+	} 
 }
 
 bool tempsession::do_push(boost::shared_ptr<session> session, Json::Value & value){
