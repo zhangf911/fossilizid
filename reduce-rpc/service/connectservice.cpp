@@ -61,6 +61,7 @@ void connectservice::run_network(){
 					boost::mutex::scoped_lock _scoped_lock(mu_wait_context_list);
 					auto finduuidcontex = wait_context_list.find(_suuid.asString());
 					if (finduuidcontex != wait_context_list.end()){
+						std::get<3>(finduuidcontex->second) = boost::shared_ptr<Json::Value>(new Json::Value(value));
 						boost::mutex::scoped_lock lock(mu_wake_up_set);
 						wake_up_set.insert(_suuid.asString());
 					}

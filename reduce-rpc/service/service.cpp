@@ -119,7 +119,6 @@ boost::shared_ptr<session> service::create_rpcsession(uuid epuuid, remote_queue:
 
 	{
 		boost::unique_lock<boost::shared_mutex> lock(mu_map_channel);
-		std::unordered_map<uuid, remote_queue::CHANNEL>::iterator it = map_channel.find(epuuid);
 		map_channel[epuuid] = ch;
 	}
 
@@ -164,7 +163,7 @@ boost::shared_ptr<Json::Value> service::wait(uuid _uuid, boost::uint64_t wait_ti
 
 	{
 		boost::mutex::scoped_lock lock(mu_wait_context_list);
-		wait_context_list.insert(std::make_pair(_uuid, std::make_tuple(_uuid, _context, wait_time, boost::shared_ptr<Json::Value>(0))));
+		wait_context_list.insert(std::make_pair(_uuid, std::make_tuple(_uuid, _context, wait_time * 1000, boost::shared_ptr<Json::Value>(0))));
 	}
 
 	context::context * _tsp_loop_main_context = tsp_loop_main_context.get();
