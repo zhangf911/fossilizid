@@ -126,7 +126,7 @@ boost::shared_ptr<session> service::create_rpcsession(uuid epuuid, remote_queue:
 		boost::unique_lock<boost::shared_mutex> lock(mu_map_uuid_session);
 		std::unordered_map<uuid, boost::shared_ptr<rpcsession> >::iterator it = map_uuid_session.find(epuuid);
 		if (it == map_uuid_session.end()){
-			map_uuid_session.insert(std::make_pair(epuuid, boost::shared_ptr<rpcsession>(new rpcsession(ch))));
+			map_uuid_session.insert(std::make_pair(epuuid, boost::shared_ptr<rpcsession>(new rpcsession(epuuid, ch))));
 		} else{
 			map_uuid_session[epuuid]->reset(ch);
 		}

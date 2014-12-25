@@ -91,7 +91,6 @@ void tempsession::do_connect_server(boost::shared_ptr<session> _session, Json::V
 		do_push(_session, ret);
 	}
 	else if (service_class == "connectservice"){
-		
 	}
 }
 
