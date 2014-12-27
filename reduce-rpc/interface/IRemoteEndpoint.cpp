@@ -7,8 +7,6 @@
 #include <boost/atomic.hpp>
 
 #include "IRemoteEndpoint.h"
-#include "../service/connectservice.h"
-#include "../service/obj.h"
 
 namespace Fossilizid{
 namespace reduce_rpc {
@@ -43,7 +41,13 @@ IRemoteEndpoint ConnectService(char * ip, short port){
 
 	_service_handle->wait(value["suuid"].asString(), 15);
 
+	ep._session = _connectservice.get_rpcsession(value["epuuid"].asString());
+
 	return ep;
+}
+
+boost::shared_ptr<session> GetSession(IRemoteEndpoint ep){
+	return ep._session;
 }
 
 } /* namespace reduce_rpc */
