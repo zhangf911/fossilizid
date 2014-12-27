@@ -1,11 +1,15 @@
 #include <vector>
-#include "UDPService.h"
-#include "UDPConnect.h"
+#include "../../reliably-transmission/UDPService.h"
+#include "../../reliably-transmission/UDPConnect.h"
 
 std::vector<boost::shared_ptr<UDPConnect> > vmap;
 
 void onRecv(char * buf, int len){
-	printf(buf);
+	char formatbuf[32];
+	memset(formatbuf, 0, 32);
+	memcpy(formatbuf, buf, len);
+	printf(formatbuf);
+	printf("\n");
 }
 
 void onConnect(boost::shared_ptr<UDPConnect> c){
@@ -21,7 +25,7 @@ int main(){
 	while (1){
 		boost::this_thread::sleep(boost::posix_time::seconds(1));
 		for (auto v : vmap){
-			v->reliable_send("what", 4);
+			v->reliable_send("test server", 11);
 		}
 	}
 

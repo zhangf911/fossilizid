@@ -1,7 +1,11 @@
-#include "UDPClient.h"
+#include "../../reliably-transmission/UDPClient.h"
 
 void onRecv(char * buf, int len){
-	printf(buf);
+	char formatbuf[32];
+	memset(formatbuf, 0, 32);
+	memcpy(formatbuf, buf, len);
+	printf(formatbuf);
+	printf("\n");
 }
 
 int main(){
@@ -13,7 +17,7 @@ int main(){
 
 	while (1){
 		boost::this_thread::sleep(boost::posix_time::seconds(1));
-		_client.reliable_send("what1", 4);
+		_client.reliable_send("test client", 11);
 	}
 
 	return 0;

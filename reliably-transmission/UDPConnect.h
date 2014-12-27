@@ -4,7 +4,6 @@
 */
 #include <list>
 #include <map>
-#include <boost/asio.hpp>
 #include <boost/signals2.hpp>
 #include <boost/thread.hpp>
 #include <boost/cstdint.hpp>

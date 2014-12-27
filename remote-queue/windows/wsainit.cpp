@@ -11,8 +11,6 @@
 namespace Fossilizid{
 namespace remote_queue {
 
-init init::_init;
-
 } /* namespace remote_queue */
 } /* namespace Fossilizid */
 

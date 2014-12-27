@@ -151,13 +151,15 @@ void UDPBase::handle_time(){
 	}
 
 	std::map<time_t, timefn>::iterator begin = maptimefn.begin();
-	for (std::map<time_t, timefn>::iterator iter = begin; iter != maptimefn.upper_bound(t) && iter != maptimefn.end(); iter++){
-		timefn fn = iter->second; 
-		if (!fn.empty()){
-			fn(t);
+	if (begin != maptimefn.end()){
+		for (std::map<time_t, timefn>::iterator iter = begin; iter != maptimefn.upper_bound(t) && iter != maptimefn.end(); iter++){
+			timefn fn = iter->second;
+			if (!fn.empty()){
+				fn(t);
+			}
 		}
+		maptimefn.erase(begin, maptimefn.upper_bound(t));
 	}
-	maptimefn.erase(begin, maptimefn.upper_bound(t));
 }
 
 void UDPBase::post_timer(time_t t, timefn fn){

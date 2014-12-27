@@ -24,9 +24,9 @@ struct init{
 	~init(){
 		WSACleanup();
 	}
-
-	static init _init;
 };
+
+static init _init;
 
 
 } /* namespace remote_queue */

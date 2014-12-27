@@ -1,6 +1,10 @@
 PROJECT(Fossilizid)
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8) 
 
+ADD_DEFINITIONS(-D_CRT_SECURE_NO_WARNINGS)
+ADD_DEFINITIONS(-D_WINSOCK_DEPRECATED_NO_WARNINGS)
+ADD_DEFINITIONS(-D___mempool___)
+
 set(BOOST_INCLUDE_PATH ${PROJECT_SOURCE_DIR}//third_party//boost CACHE PATH "Fossilizid include path")
 INCLUDE_DIRECTORIES(${BOOST_INCLUDE_PATH})
 
@@ -23,11 +27,11 @@ set(Fossilizid_bin_path ${PROJECT_BINARY_DIR}/bin CACHE PATH "Fossilizid bin pat
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 
-ADD_SUBDIRECTORY(comm-protocols ${Fossilizid_bin_path}/comm-protocols)
 ADD_SUBDIRECTORY(pool ${Fossilizid_bin_path}/pool)
 ADD_SUBDIRECTORY(remote-queue ${Fossilizid_bin_path}/remote-queue)
 ADD_SUBDIRECTORY(container ${Fossilizid_bin_path}/container)
 ADD_SUBDIRECTORY(reduce-rpc ${Fossilizid_bin_path}/reduce-rpc)
-ADD_SUBDIRECTORY(test ${Fossilizid_bin_path}/test)
 ADD_SUBDIRECTORY(context ${Fossilizid_bin_path}/context)
+ADD_SUBDIRECTORY(reliably-transmission ${Fossilizid_bin_path}/reliably-transmission)
 ADD_SUBDIRECTORY(third_party ${Fossilizid_bin_path}/third_party)
+ADD_SUBDIRECTORY(test ${Fossilizid_bin_path}/test)
