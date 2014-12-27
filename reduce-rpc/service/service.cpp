@@ -45,28 +45,38 @@ void service::init(){
 	context::context ct = context::make_context();
 
 	std::function<context::context * () > _wake_up = [this](){
-		boost::mutex::scoped_lock lock(mu_wait_context_list);
-
 		{
-			boost::mutex::scoped_lock lock(mu_wake_up_set);
-			for (auto it = wake_up_set.begin(); it != wake_up_set.end();){
-				auto find = wait_context_list.find(*it);
-				it = wake_up_set.erase(it);
-				if (find != wait_context_list.end()){
-					context::context * _context = std::get<1>(find->second);
-					wait_context_list.erase(find);
+			boost::mutex::scoped_lock lock(mu_wait_context_list);
+
+			{
+				boost::mutex::scoped_lock lock(mu_wake_up_set);
+				for (auto it = wake_up_set.begin(); it != wake_up_set.end();){
+					auto find = wait_context_list.find(*it);
+					it = wake_up_set.erase(it);
+					if (find != wait_context_list.end()){
+						context::context * _context = std::get<1>(find->second);
+						wait_context_list.erase(find);
+						return _context;
+					}
+				}
+			}
+
+			for (auto it = wait_context_list.begin(); it != wait_context_list.end();){
+				if (std::get<2>(it->second) >= unixtime()){
+					context::context * _context = std::get<1>(it->second);
 					return _context;
+				}
+				else{
+					it++;
 				}
 			}
 		}
 
-		for (auto it = wait_context_list.begin(); it != wait_context_list.end();){
-			if (std::get<2>(it->second) >= unixtime()){
-				context::context * _context = std::get<1>(it->second);
+		{
+			boost::mutex::scoped_lock lock(mu_wake_up_vector);
+			for (auto it = wait_weak_up_context.begin(); it != wait_weak_up_context.end();){
+				auto _context = it->second;
 				return _context;
-			}
-			else{
-				it++;
 			}
 		}
 
@@ -177,6 +187,23 @@ boost::shared_ptr<Json::Value> service::wait(uuid _uuid, boost::uint64_t wait_ti
 	boost::shared_ptr<Json::Value> value = std::get<3>(wait_context_list[_uuid]);
 	
 	return value;
+}
+
+void service::wait(uuid _uuid){
+	//context::context * _context = get_current_context();
+
+	//{
+		//boost::mutex::scoped_lock lock(mu_wake_up_vector);
+		//wait_weak_up_context.insert(std::make_pair(_uuid, _context));
+	//}
+
+	context::context * _tsp_loop_main_context = tsp_loop_main_context.get();
+	if (_tsp_loop_main_context != 0){
+		context::yield(_tsp_loop_main_context);
+	}
+	else{
+		throw std::exception("_tsp_loop_main_context is null");
+	}
 }
 
 void service::register_global_obj(boost::shared_ptr<obj> obj){

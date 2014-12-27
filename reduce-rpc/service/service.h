@@ -32,8 +32,6 @@ class rpcsession;
 class session;
 class obj;
 
-struct semaphore;
-
 class service{
 public:
 	service();
@@ -88,6 +86,8 @@ public:
 
 	boost::shared_ptr<Json::Value> wait(uuid _uuid, boost::uint64_t wait_time);
 
+	void wait(uuid _uuid);
+
 protected:
 	virtual void run_network() = 0;
 
@@ -120,12 +120,17 @@ protected:
 	boost::mutex mu_wait_context_list;
 	std::unordered_map<uuid, std::tuple<uuid, context::context *, boost::uint64_t, boost::shared_ptr<Json::Value> > > wait_context_list;
 	
+	boost::mutex mu_wake_up_vector;
+	std::unordered_map<uuid, context::context * > wait_weak_up_context;
+	
 	boost::mutex mu_wake_up_set;
 	std::set<uuid> wake_up_set;
 
 	boost::thread_specific_ptr<context::context> tsp_context;
 
 	boost::thread_specific_ptr<context::context> tsp_loop_main_context;
+
+	friend class mutex;
 
 protected:
 	boost::thread_specific_ptr<std::stack<boost::shared_ptr<obj> > > tsp_current_obj;

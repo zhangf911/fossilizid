@@ -15,6 +15,7 @@ SET(header_files
     ./obj.h
     ./uuid.h
     ./protodescription.h
+    ./mutex.h
 )
 
 SET(SRC_LIST 
