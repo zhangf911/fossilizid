@@ -10,6 +10,7 @@ namespace Fossilizid{
 namespace context {
 
 context::context(boost::function<void()> fn){
+	contextfn = fn;
 #ifdef _WINDOWS
 	pFiber = CreateFiber(1024*16, contextFiberProc, this);
 #endif
@@ -32,14 +33,6 @@ void context::operator()(){
 #ifdef _WINDOWS
 	SwitchToFiber(pFiber);
 #endif 
-}
-
-context make_context(){
-	context ct(0);
-#ifdef _WINDOWS
-	ct.pFiber = ConvertThreadToFiber(0);
-#endif
-	return ct;
 }
 
 void yield(context * ct){

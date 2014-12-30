@@ -1,5 +1,4 @@
 fossilizid
 ==========
 
-fossilizid: a open source service build by qianqians
-a new mode for server by c++
+fossilizid: a open source c++ library start by qianqians

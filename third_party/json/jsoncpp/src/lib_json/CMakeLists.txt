@@ -22,7 +22,7 @@ SET( PUBLIC_HEADERS
 
 SOURCE_GROUP( "Public API" FILES ${PUBLIC_HEADERS} )
 
-ADD_LIBRARY( jsoncpp_lib ${JSONCPP_LIB_TYPE}
+ADD_LIBRARY( jsoncpp ${JSONCPP_LIB_TYPE}
              ${PUBLIC_HEADERS} 
              json_tool.h
              json_reader.cpp
@@ -32,11 +32,11 @@ ADD_LIBRARY( jsoncpp_lib ${JSONCPP_LIB_TYPE}
              json_writer.cpp
              version.h.in
              )
-SET_TARGET_PROPERTIES( jsoncpp_lib PROPERTIES OUTPUT_NAME jsoncpp )
-SET_TARGET_PROPERTIES( jsoncpp_lib PROPERTIES VERSION ${JSON_CPP_VERSION} SOVERSION ${JSON_CPP_VERSION} )
+SET_TARGET_PROPERTIES( jsoncpp PROPERTIES OUTPUT_NAME jsoncpp )
+SET_TARGET_PROPERTIES( jsoncpp PROPERTIES VERSION ${JSON_CPP_VERSION} SOVERSION ${JSON_CPP_VERSION} )
 
 # Install instructions for this target
-INSTALL( TARGETS jsoncpp_lib
+INSTALL( TARGETS jsoncpp
          RUNTIME DESTINATION bin
          LIBRARY DESTINATION lib
          ARCHIVE DESTINATION lib
