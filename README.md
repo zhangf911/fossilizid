@@ -18,7 +18,7 @@ pool mempool&&objpool
  - factory
 
 ----------
-remote-queue network library
+remote-queue network library based on IOCP
   
 ----------
 reliably-transmission udp reliably transmission 
