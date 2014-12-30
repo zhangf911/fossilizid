@@ -18,8 +18,6 @@ public:
 	void start();
 	void stop();
 
-	void th_func();
-
 	boost::signals2::signal<void(char *, int)> sigCapture;
 	
 	bool setOutputDevice(PaDeviceIndex index);
