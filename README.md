@@ -3,7 +3,7 @@
 fossilizid: a open source c++ library start by wmn0377@corp.netease.com
 
 ---
-container lock-free structure
+container: lock-free structure
   
  - msque
  - optimisticque
@@ -12,16 +12,16 @@ container lock-free structure
  - small_hash_map
 
 ----------
-pool mempool&&objpool
+pool: mempool&&objpool
 
  - mempool
  - factory
 
 ----------
-remote-queue network library based on IOCP
+remote-queue: network library based on IOCP
   
 ----------
-reliably-transmission udp reliably transmission 
+reliably-transmission: udp reliably transmission 
 
 ----------
-vchat voice chat framework
+vchat: voice chat framework
