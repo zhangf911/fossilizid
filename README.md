@@ -9,7 +9,10 @@ container: lock-free structure
  - optimisticque
  - ringque
  - swapque
- - small_hash_map
+ - small_hash_map 
+
+----------
+context: corotinue
 
 ----------
 pool: mempool&&objpool
