@@ -25,7 +25,9 @@ remoteq: network library
   
 ----------
 reliablyt: udp reliably transmission  
-----------reduce: reduce service 
+
+---------- 
+reduce: reduce service 
 
 ----------
 vchat: voice chat framework
