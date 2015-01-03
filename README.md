@@ -21,13 +21,13 @@ pool: mempool&&objpool
  - factory
 
 ----------
-remoteq: network library
-  
-----------
-reliablyt: udp reliably transmission  
+remoteq: network library  
 
 ---------- 
-reduce: reduce service 
+reduce: reduce service
+  
+----------
+reliablyt: udp reliably transmission 
 
 ----------
 vchat: voice chat framework
