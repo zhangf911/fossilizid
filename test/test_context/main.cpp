@@ -34,10 +34,14 @@ void context1(){
 	Fossilizid::context::yield(mainct);
 }
 
+void init(){
+	mainct = Fossilizid::context::makecontext();
+}
+
 int main(){
 	printf("main");
 
-	mainct = Fossilizid::context::makecontext();
+	init();
 
 	Fossilizid::context::yield(ct1);
 
