@@ -11,4 +11,4 @@ SET(SRC_LIST
 )
 
 add_executable(test_service_client ${SRC_LIST} ${header_files})
-target_link_libraries(test_service_client reduce-rpc-service remote-queue pool jsoncpp context)
+target_link_libraries(test_service_client reduce remoteq pool jsoncpp context)

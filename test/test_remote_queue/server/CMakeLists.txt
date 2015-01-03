@@ -11,4 +11,4 @@ SET(SRC_LIST
 )
 
 add_executable(test_remote_queue_server ${SRC_LIST} ${header_files})
-target_link_libraries(test_remote_queue_server remote-queue pool jsoncpp_lib)
+target_link_libraries(test_remote_queue_server remoteq pool jsoncpp)

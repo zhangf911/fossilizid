@@ -1,13 +1,13 @@
-#include "..\..\reduce-rpc\service\acceptservice.h"
+#include "..\..\reduce\service\acceptservice.h"
 #include "../../context/context.h"
-#include "../../reduce-rpc/service/locale_obj.h"
-#include "../../reduce-rpc/service/rpcsession.h"
+#include "../../reduce/service/locale_obj.h"
+#include "../../reduce/service/rpcsession.h"
 
 class account{
 public:
-	account() : obj(new Fossilizid::reduce_rpc::locale_obj("account")){
+	account() : obj(new Fossilizid::reduce::locale_obj("account")){
 		obj->register_rpc_mothed(std::make_pair("login", boost::bind(&account::login_call_back, this, _1)));
-		Fossilizid::reduce_rpc::_service_handle->register_global_obj(obj);
+		Fossilizid::reduce::_service_handle->register_global_obj(obj);
 	}
 
 	bool login(){
@@ -17,7 +17,7 @@ public:
 	Json::Value login_call_back(Json::Value & v){
 		printf(v.toStyledString().c_str());
 
-		boost::shared_ptr<Fossilizid::reduce_rpc::rpcsession> s = boost::static_pointer_cast<Fossilizid::reduce_rpc::rpcsession>(Fossilizid::reduce_rpc::_service_handle->get_current_session());
+		boost::shared_ptr<Fossilizid::reduce::rpcsession> s = boost::static_pointer_cast<Fossilizid::reduce::rpcsession>(Fossilizid::reduce::_service_handle->get_current_session());
 
 		Json::Value value;
 		value["epuuid"] = s->epuuid();
@@ -31,11 +31,11 @@ public:
 	}
 
 private:
-	boost::shared_ptr<Fossilizid::reduce_rpc::locale_obj> obj;
+	boost::shared_ptr<Fossilizid::reduce::locale_obj> obj;
 };
 
 int main(){
-	Fossilizid::reduce_rpc::acceptservice _service("127.0.0.1", 7777);
+	Fossilizid::reduce::acceptservice _service("127.0.0.1", 7777);
 
 	_service.init();
 
