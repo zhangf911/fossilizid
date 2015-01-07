@@ -160,6 +160,8 @@ void * mempool::allocator(int len){
 		mem = malloc(len);
 	}
 
+	memset(mem, 0, len);
+
 	return mem;
 #else
 
