@@ -55,7 +55,8 @@ void service::init(){
 					it = wake_up_set.erase(it);
 					if (find != wait_context_list.end()){
 						context::context _context = std::get<1>(find->second);
-						wait_context_list.erase(find);
+						boost::shared_ptr<Json::Value> value = std::get<3>(find->second);
+						(*value)["istimeout"] = false;
 						return _context;
 					}
 				}
@@ -64,6 +65,8 @@ void service::init(){
 			for (auto it = wait_context_list.begin(); it != wait_context_list.end();){
 				if (std::get<2>(it->second) >= unixtime()){
 					context::context _context = std::get<1>(it->second);
+					boost::shared_ptr<Json::Value> value = std::get<3>(it->second);
+					(*value)["istimeout"] = true;
 					return _context;
 				}
 				else{
@@ -76,6 +79,7 @@ void service::init(){
 			boost::mutex::scoped_lock lock(mu_wake_up_vector);
 			for (auto it = wait_weak_up_context.begin(); it != wait_weak_up_context.end();){
 				auto _context = it->second;
+				wait_weak_up_context.erase(it);
 				return _context;
 			}
 		}
@@ -97,6 +101,8 @@ void service::init(){
 
 	_loop_main = [this, _run_logic, _wake_up](){
 		while (1){
+			_run_network();
+
 			_run_logic();
 
 			context::context _run_logic_context = _wake_up();
@@ -114,24 +120,31 @@ void service::init(){
 	tsp_loop_return_context.reset(new context::context(_loog_return_context));
 	set_current_context(_loog_return_context);
 
-	_thread_group.create_thread(boost::bind(&service::run_network, this));
+	auto run_network = [this](){
+		while (isrun.load()){
+			_run_network();
+		}
+	};
+
+	_thread_group.create_thread(run_network);
 }
 
 void service::join(){
+	context::context _context = get_current_context();
+
 	context::context * _loop_main_context = tsp_loop_main_context.get();
-	set_current_context(_loop_main_context);
-	context::yield(*_loop_main_context);
+	if (_context != *_loop_main_context){
+		wait_weak_up_context.insert(std::make_pair(UUID(), _context));
+
+		set_current_context(_loop_main_context);
+		context::yield(*_loop_main_context);
+	}
 }
 
 boost::shared_ptr<session> service::create_rpcsession(uuid epuuid, remoteq::CHANNEL ch){
 	{
 		boost::unique_lock<boost::shared_mutex> lock(mu_map_session);
 		map_session.erase(ch);
-	}
-
-	{
-		boost::unique_lock<boost::shared_mutex> lock(mu_map_channel);
-		map_channel[epuuid] = ch;
 	}
 
 	{

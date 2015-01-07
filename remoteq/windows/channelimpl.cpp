@@ -49,6 +49,8 @@ CHANNEL connect(ENDPOINT ep, QUEUE que) {
 	channelimpl * ch = pool::objpool<channelimpl>::allocator(1);
 	new (ch) channelimpl(que, s);
 
+	CreateIoCompletionPort((HANDLE)ch->s, ((queueimpl*)((handle*)ch->que))->iocp, 0, 0);
+
 	if (ch->que != 0){
 		WSABUF * wsabuf = pool::objpool<WSABUF>::allocator(1);
 		wsabuf->buf = ch->buf;
@@ -61,7 +63,11 @@ CHANNEL connect(ENDPOINT ep, QUEUE que) {
 		ovp->type = iocp_type_recv;
 		OVERLAPPED * ovp_ = static_cast<OVERLAPPED *>(ovp);
 		memset(ovp_, 0, sizeof(OVERLAPPED));
-		WSARecv(ch->s, wsabuf, 1, &bytes, &flags, ovp_, 0);
+		if (WSARecv(ch->s, wsabuf, 1, &bytes, &flags, ovp_, 0) == SOCKET_ERROR){
+			if (WSAGetLastError() != WSA_IO_PENDING){
+				return false;
+			}
+		}
 	}
 
 	return (CHANNEL)((handle*)ch);

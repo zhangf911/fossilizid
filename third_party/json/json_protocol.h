@@ -21,13 +21,36 @@ inline boost::shared_ptr<std::string> json_to_buf(Json::Value & value){
 	Json::FastWriter write;
 	*str = write.write(value);
 
+	size_t begin = 0;
+	while ((*str)[begin] != '[' && (*str)[begin] != '{'){
+		begin++;
+
+		if (begin >= (*str).size()){
+			throw std::exception("error format json string");
+		}
+	}
+
+	char end = ' ';
+	if ((*str)[begin] == '['){
+		end = ']';
+	}
+	if ((*str)[begin] == '{'){
+		end = '}';
+	}
+
+	auto endjson = str->back();
+	while(endjson != end){
+		str->pop_back();
+		endjson = str->back();
+	}
+
 	return str;
 }
 
 inline int buf_to_json(Json::Value & value, char * buf, int len){
 	Json::Reader read;
+	
 	int begin = 0;
-
 	while (buf[begin] != '[' && buf[begin] != '{'){
 		begin++;
 
@@ -44,34 +67,32 @@ inline int buf_to_json(Json::Value & value, char * buf, int len){
 		end = '}';
 	}
 
-	int count = 1;
-	char next = ' ';
+	std::list<char> next;
 	int i = begin;
 	for (; i < len; i++){
 		if (buf[i] == '['){
-			next = ']';
-			count++;
+			next.push_back(']');
 		}
 		if (buf[i] == '{'){
-			next = '}';
-			count++;
+			next.push_back('}');
 		}
 
-		if (buf[i] == next){
-			count--;
-		}
-
-		if (buf[i] == end && count == 1){
-			count--;
+		if (buf[i] == next.back()){
+			next.pop_back();
 			continue;
 		}
 
-		if (count == 0){
+		if (buf[i] == end && next.size() == 1){
+			next.pop_back();
+			continue;
+		}
+
+		if (next.size() == 0){
 			break;
 		}
 	}
 
-	if (count != 0){
+	if (next.size() != 0){
 		return -1;
 	}
 

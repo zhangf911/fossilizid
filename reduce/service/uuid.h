@@ -8,16 +8,6 @@
 #define _uuid_h
 
 #include <string>
-#include <time.h>
-
-#ifdef _WINDOWS
-
-#include <windows.h> 
-#include <iphlpapi.h>
-
-#pragma comment(lib, "IPHLPAPI.lib")
-
-#endif
 
 namespace Fossilizid{
 namespace reduce{

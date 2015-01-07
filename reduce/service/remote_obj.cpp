@@ -11,7 +11,7 @@ namespace Fossilizid{
 namespace reduce {
 
 remote_obj::remote_obj(boost::shared_ptr<session> session, Json::Value & value){
-	Json::Value _class_name_ = value.get("class_name", Json::nullValue);
+	Json::Value _class_name_ = value.get("classname", Json::nullValue);
 	if (!_class_name_.isNull() && _class_name_.isString()){
 		_class_name = _class_name_.asString();
 	}
@@ -49,7 +49,7 @@ void remote_obj::call_rpc_mothed(Json::Value & value){
 	}
 
 	if (reqsession != 0){
-		reqsession->do_push(reqsession, value);
+		reqsession->do_async_push(reqsession, value);
 	}else{
 		Json::Reader reader;
 		Json::Value ret;

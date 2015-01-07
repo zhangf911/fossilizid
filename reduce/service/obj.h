@@ -41,7 +41,7 @@ public:
 
 	uuid objid();
 
-	void push_rpc_event(std::pair<boost::shared_ptr<session>, Json::Value> _event);
+	void push_rpc_event(std::pair<boost::shared_ptr<session>, Json::Value> & _event);
 
 public:
 	virtual void call_do_logic();

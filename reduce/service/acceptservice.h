@@ -18,7 +18,7 @@ public:
 	~acceptservice();
 
 private:
-	void run_network();
+	void _run_network();
 
 private:
 	remoteq::QUEUE que;

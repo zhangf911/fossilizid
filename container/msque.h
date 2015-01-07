@@ -174,7 +174,7 @@ private:
 
 	_list_node * get_node(const T & data){
 		_list_node * _node = pool::objpool<_list_node>::allocator(1);
-		_node->data = data;
+		new (&_node->data) T(data);
 		_node->_next = 0;
 
 		return _node;

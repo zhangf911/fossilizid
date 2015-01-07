@@ -51,7 +51,9 @@ public:
 
 	virtual void do_pop(boost::shared_ptr<session> session, Json::Value & value);
 
-	virtual bool do_push(boost::shared_ptr<session> session, Json::Value & value);
+	virtual bool do_async_push(boost::shared_ptr<session> session, Json::Value & value);
+
+	virtual bool do_sync_push(boost::shared_ptr<session> session, uuid _uuid, Json::Value & value, boost::shared_ptr<Json::Value> & ret, boost::uint64_t wait_time);
 
 	virtual void do_logic();
 

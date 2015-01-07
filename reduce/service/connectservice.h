@@ -21,7 +21,7 @@ public:
 	boost::shared_ptr<session> connect(char * ip, short port);
 
 private:
-	void run_network();
+	void _run_network();
 
 private:
 	remoteq::QUEUE que;

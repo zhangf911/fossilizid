@@ -1,6 +1,6 @@
 #include <vector>
-#include "../../reliably-transmission/UDPService.h"
-#include "../../reliably-transmission/UDPConnect.h"
+#include "../../reliablyt/UDPService.h"
+#include "../../reliablyt/UDPConnect.h"
 
 std::vector<boost::shared_ptr<UDPConnect> > vmap;
 

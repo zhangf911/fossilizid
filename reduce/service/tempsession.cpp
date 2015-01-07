@@ -39,11 +39,40 @@ void tempsession::do_pop(boost::shared_ptr<session> session, Json::Value & value
 	} 
 }
 
-bool tempsession::do_push(boost::shared_ptr<session> session, Json::Value & value){
+bool tempsession::do_async_push(boost::shared_ptr<session> session, Json::Value & value){
 	if (session != 0){
 		return remoteq::push(static_cast<tempsession*>(session.get())->ch, value, boost::bind(json_parser::json_to_buf, _1));
 	}
+	return false;
+}
 
+bool tempsession::do_sync_push(boost::shared_ptr<session> session, uuid _uuid, Json::Value & value, boost::shared_ptr<Json::Value> & ret, boost::uint64_t wait_time){
+	if (session != 0){
+		if (remoteq::push(static_cast<tempsession*>(session.get())->ch, value, boost::bind(json_parser::json_to_buf, _1))){
+			context::context _context = _service_handle->get_current_context();
+
+			{
+				boost::mutex::scoped_lock lock(_service_handle->mu_wait_context_list);
+				_service_handle->wait_context_list.insert(std::make_pair(_uuid, std::make_tuple(_uuid, _context, wait_time * 1000, ret)));
+			}
+
+			context::context * _tsp_loop_main_context = _service_handle->tsp_loop_main_context.get();
+			if (_tsp_loop_main_context != 0){
+				context::yield(*_tsp_loop_main_context);
+			} else if (*_tsp_loop_main_context == _context){
+				context::context _context = context::getcontext(_service_handle->_loop_main);
+				_service_handle->set_current_context(_context);
+				context::yield(_context);
+			} else {
+				throw std::exception("_tsp_loop_main_context is null");
+			}
+
+			ret = std::get<3>(_service_handle->wait_context_list[_uuid]);
+			_service_handle->wait_context_list.erase(_uuid);
+
+			return (*ret)["istimeout"].asBool() == false;
+		}
+	}
 	return false;
 }
 
@@ -76,7 +105,7 @@ void tempsession::do_connect_server(boost::shared_ptr<session> _session, Json::V
 		Json::Value ret;
 		ret["epuuid"] = _epuuid.asString();
 		ret["suuid"] = _suuid.asString();
-		ret["ret"] = "OK";
+		ret["eventtype"] = "connect_server";
 		ret["globalobjarray"] = Json::Value(Json::arrayValue);
 
 		_service_handle->global_obj_lock();
@@ -85,10 +114,12 @@ void tempsession::do_connect_server(boost::shared_ptr<session> _session, Json::V
 			objinfo["classname"] = it->second->class_name();
 			objinfo["objid"] = it->second->objid();
 			ret["globalobjarray"].append(objinfo);
+
+			_rpc->register_global_obj(it->second);
 		}
 		_service_handle->global_obj_unlock();
 
-		do_push(_session, ret);
+		do_async_push(_session, ret);
 	}
 	else if (service_class == "connectservice"){
 	}

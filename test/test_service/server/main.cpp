@@ -11,11 +11,13 @@ public:
 	}
 
 	bool login(){
+		printf("login sucess\n");
 		return true;
 	}
 
 	Json::Value login_call_back(Json::Value & v){
-		printf(v.toStyledString().c_str());
+		Json::FastWriter write;
+		printf("%s\n", write.write(v).c_str());
 
 		boost::shared_ptr<Fossilizid::reduce::rpcsession> s = boost::static_pointer_cast<Fossilizid::reduce::rpcsession>(Fossilizid::reduce::_service_handle->get_current_session());
 
@@ -23,9 +25,9 @@ public:
 		value["epuuid"] = s->epuuid();
 		value["suuid"] = v["suuid"];
 		value["eventtype"] = "rpc_event";
-		value["rpc_event_type"] = "call_rpc_mothed";
+		value["rpc_event_type"] = "call_rpc_mothed_ret";
 		value["fnname"] = "login";
-		value["ret"] = true;
+		value["ret"] = login();
 		
 		return value;
 	}
@@ -38,6 +40,8 @@ int main(){
 	Fossilizid::reduce::acceptservice _service("127.0.0.1", 7777);
 
 	_service.init();
+
+	account _account;
 
 	while (1){
 		_service.join();

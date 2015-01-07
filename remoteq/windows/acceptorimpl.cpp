@@ -76,6 +76,10 @@ CHANNEL accept(ACCEPTOR ap){
 	new (ch)channelimpl(((acceptorimlp*)((handle*)ap))->que, ((acceptorimlp*)((handle*)ap))->sa);
 
 	setsockopt(ch->s, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, (char *)&((acceptorimlp*)((handle*)ap))->sl, sizeof(((acceptorimlp*)((handle*)ap))->sl));
+	
+	unsigned long ul = 1;
+	if (ioctlsocket(ch->s, FIONBIO, (unsigned long *)&ul) == SOCKET_ERROR){
+	}
 
 	CreateIoCompletionPort((HANDLE)ch->s, ((queueimpl*)((handle*)ch->que))->iocp, 0, 0);
 

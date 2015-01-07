@@ -26,7 +26,7 @@ uuid obj::objid(){
 	return _objid;
 }
 
-void obj::push_rpc_event(std::pair<boost::shared_ptr<session>, Json::Value> _event){
+void obj::push_rpc_event(std::pair<boost::shared_ptr<session>, Json::Value> & _event){
 	cmdque.push(_event);
 }
 
@@ -102,18 +102,18 @@ void obj::push_rcp_mothed_ret(boost::shared_ptr<session> session, Json::Value & 
 		return;
 	}
 
-	while (0){
+	do {
 		if (session != 0){
-			if (session->do_push(session, value)){
+			if (session->do_async_push(session, value)){
 				break;
 			}
 		}
 
 		session = _service_handle->get_rpcsession(_epuuid.asString());
 		if (session != 0){
-			session->do_push(session, value);
+			session->do_async_push(session, value);
 		}
-	}
+	} while (0);
 }
 
 } /* namespace reduce */

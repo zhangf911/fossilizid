@@ -86,10 +86,8 @@ public:
 
 	boost::shared_ptr<Json::Value> wait(uuid _uuid, boost::uint64_t wait_time);
 
-	//void wait(uuid _uuid);
-
 protected:
-	virtual void run_network() = 0;
+	virtual void _run_network() = 0;
 
 protected:
 	boost::atomic_bool isrun;
@@ -109,9 +107,6 @@ protected:
 	std::unordered_map<remoteq::CHANNEL, boost::shared_ptr<session> > map_session;
 
 	boost::thread_specific_ptr<std::stack<boost::shared_ptr<session> > > tsp_current_session;
-
-	boost::shared_mutex mu_map_channel;
-	std::unordered_map<uuid, remoteq::CHANNEL> map_channel;
 
 	boost::shared_mutex mu_map_uuid_session;
 	std::unordered_map<uuid, boost::shared_ptr<rpcsession> > map_uuid_session;
@@ -134,6 +129,8 @@ protected:
 	boost::thread_specific_ptr<context::context> tsp_loop_return_context;
 
 	friend class mutex;
+	friend class tempsession;
+	friend class rpcsession;
 
 protected:
 	boost::thread_specific_ptr<std::stack<boost::shared_ptr<obj> > > tsp_current_obj;

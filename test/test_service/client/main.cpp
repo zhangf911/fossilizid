@@ -3,7 +3,7 @@
 #include "../../reduce/service/rpcsession.h"
 #include "../../reduce/service/uuid.h"
 
-void ConnectService(boost::shared_ptr<Fossilizid::reduce::session> s){
+boost::shared_ptr<Fossilizid::reduce::session> ConnectService(boost::shared_ptr<Fossilizid::reduce::session> s){
 	Json::Value value;
 	value["suuid"] = Fossilizid::reduce::UUID();
 	value["epuuid"] = Fossilizid::reduce::UUID();
@@ -18,11 +18,10 @@ void ConnectService(boost::shared_ptr<Fossilizid::reduce::session> s){
 	}
 	Fossilizid::reduce::_service_handle->global_obj_unlock();
 
-	s->do_push(s, value);
+	boost::shared_ptr<Json::Value> ret = 0;
+	s->do_sync_push(s, value["suuid"].asString(), value, ret, 15);
 
-	Fossilizid::reduce::_service_handle->wait(value["suuid"].asString(), 15);
-
-	s = Fossilizid::reduce::_service_handle->get_rpcsession(value["epuuid"].asString());
+	return Fossilizid::reduce::_service_handle->get_rpcsession(value["epuuid"].asString());
 }
 
 class account{
@@ -40,18 +39,21 @@ public:
 		Json::Value value;
 		value["epuuid"] = s->epuuid();
 		value["suuid"] = Fossilizid::reduce::UUID();
+		value["objuuid"] = obj->objid();
 		value["eventtype"] = "rpc_event";
 		value["rpc_event_type"] = "call_rpc_mothed";
 		value["fnargv"] = Json::Value(Json::objectValue);
 		value["fnname"] = "login";
-		s->do_push(s, value);
+		
+		boost::shared_ptr<Json::Value> ret = 0;
+		s->do_sync_push(s, value["suuid"].asString(), value, ret, 15);
 
-		boost::shared_ptr<Json::Value> ret = Fossilizid::reduce::_service_handle->wait(value["suuid"].asString(), 1);
 		if ((*ret)["suuid"] != value["suuid"]){
 			throw std::exception("error suuid");
 		}
 
-		printf((*ret).toStyledString().c_str());
+		Json::FastWriter write;
+		printf("%s\n", write.write(*ret).c_str());
 
 		return (*ret)["ret"].asBool();
 	}
@@ -62,13 +64,13 @@ int main(){
 
 	_service.init();
 
-	boost::shared_ptr<Fossilizid::reduce::rpcsession> s = boost::static_pointer_cast<Fossilizid::reduce::rpcsession>(_service.connect("127.0.0.1", 7777));
-	ConnectService(s);
+	boost::shared_ptr<Fossilizid::reduce::rpcsession> s = boost::static_pointer_cast<Fossilizid::reduce::rpcsession>(ConnectService(_service.connect("127.0.0.1", 7777)));
 
 	boost::shared_ptr<Fossilizid::reduce::obj> _obj = s->get_global_obj("account");
 	if (_obj != 0){
 		account a(_obj, s);
 		a.login();
+		printf("login sucess\n");
 	}
 
 	while (1){

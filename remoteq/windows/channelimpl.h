@@ -88,7 +88,11 @@ bool pop(CHANNEL ch, CMD & cmd, BUFTOCMD fn){
 		if (len < 0){
 			int error = WSAGetLastError();
 			if (error != WSAEWOULDBLOCK){
-				throw std::exception("recv error %d", error);
+				EVENT ev;
+				ev.handle.ch = ch;
+				ev.type = event_type_disconnect;
+				((queueimpl*)((channelimpl*)((handle*)ch))->que)->evque.push(ev);
+				break;
 			} else {
 				break;
 			}
@@ -139,7 +143,11 @@ bool pop(CHANNEL ch, CMD & cmd, BUFTOCMD fn){
 				ovp->type = iocp_type_recv;
 				OVERLAPPED * ovp_ = static_cast<OVERLAPPED *>(ovp);
 				memset(ovp_, 0, sizeof(OVERLAPPED));
-				WSARecv(implch->s, wsabuf, 1, &bytes, &flags, ovp_, 0);
+				if (WSARecv(implch->s, wsabuf, 1, &bytes, &flags, ovp_, 0) == SOCKET_ERROR){
+					if (WSAGetLastError() != WSA_IO_PENDING){
+						return false;
+					}
+				}
 			}
 		}
 	}
