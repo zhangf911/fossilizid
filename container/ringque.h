@@ -34,7 +34,24 @@ public:
 	~ringque(){
 		put_que(_que, _que_max);
 	}
+		
+	/*
+	 * que is empty
+	 */
+	bool empty(){
+		return (size() == 0);
+	}
+		
+	/*
+	 * get que size
+	 */
+	std::size_t size(){
+		return _size.load();
+	}
 
+	/*
+	 * clear this que
+	 */
 	void clear(){
 		boost::unique_lock<boost::shared_mutex> lock(_mu);
 
@@ -63,11 +80,10 @@ public:
 		}
 		put_que(_tmp, _que_max);
 	}
-
-	std::size_t size(){
-		return _size.load();
-	}
-
+		
+	/*
+	 * push a element to que
+	 */
 	void push(T data){
 		boost::shared_lock<boost::shared_mutex> lock(_mu);
 
@@ -106,6 +122,9 @@ public:
 		}
 	}
 
+	/*
+	 * pop a element form que if empty return false 
+	 */
 	bool pop(T & data){
 		boost::shared_lock<boost::shared_mutex> lock(_mu);
 

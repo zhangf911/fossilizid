@@ -18,14 +18,30 @@ public:
 	UDPSession();
 	~UDPSession();
 
+	/*
+	 * recv signal, detonate by recv data 
+	 */
 	boost::signals2::signal<void(char *, int) > sigRecv;
 
+	/*
+	 * recv signal, detonate by session disconnect
+	 */
 	boost::signals2::signal<void() > sigDisConnect;
 
+	/*
+	 * disconnect session
+	 */
 	void disconnect();
 
+	/*
+	 * send a reliable udp data
+	 * resend until recv a response pack 
+	 */
 	void reliable_send(char * buf, int len);
 
+	/*
+	 * send a udp data
+	 */
 	void unreliable_send(char * buf, int len);
 
 protected:

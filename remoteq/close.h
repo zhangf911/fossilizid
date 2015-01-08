@@ -11,6 +11,10 @@ namespace Fossilizid{
 namespace remoteq {
 
 typedef void * HANDLE;
+
+/*
+ * release handle
+ */
 void close(HANDLE _handle);
 
 } /* namespace remoteq */

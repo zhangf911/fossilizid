@@ -30,6 +30,9 @@ public:
 	~UDPBase();
 
 public:
+	/*
+	 * post a time callback
+	 */
 	void post_timer(time_t t, timefn fn);
 
 protected:

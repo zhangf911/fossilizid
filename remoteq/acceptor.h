@@ -12,8 +12,14 @@
 namespace Fossilizid{
 namespace remoteq{
 
+/*
+ * create a ACCEPTOR
+ */
 ACCEPTOR acceptor(QUEUE que, ENDPOINT ep);
 
+/*
+ * accept CHANNEL from ACCEPTOR
+ */
 CHANNEL accept(ACCEPTOR ap);
 
 } /* namespace remoteq */

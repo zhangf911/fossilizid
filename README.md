@@ -41,7 +41,7 @@ remoteq: network library
 
 ---------- 
 reduce: reduce service
-  
+
 ----------
 reliablyt: udp reliably transmission 
 
@@ -50,6 +50,12 @@ vchat: voice chat framework
 
 ----------
 
+Contact me
+----------
+
+anxiangqq@gmail.com
+
+----------
 License
 -------
 This project is under the GPL v2 License. See the LICENSE file for the full license text.

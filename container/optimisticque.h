@@ -45,6 +45,23 @@ public:
 		put_list(_list.load());
 	}
 
+	/*
+	 * que is empty
+	 */
+	bool empty(){
+		return (size() == 0);
+	}
+
+	/*
+	 * get que size
+	 */
+	size_t size(){
+		return _list.load()->size.load();
+	}
+
+	/*
+	 * clear this que
+	 */
 	void clear(){
 		detail::_hazard_ptr<list> * _plist = _hsys_list.acquire();
 		list * _tmplist = get_list();
@@ -53,10 +70,9 @@ public:
 		_hsys_list.release(_plist);
 	}
 
-	size_t size(){
-		return _list.load()->size.load();
-	}
-
+	/*
+	 * push a element to que
+	 */
 	void push(const T & data){
 		node * _new = get_node(data);
 
@@ -81,6 +97,9 @@ public:
 		_hsys_list.release(_plist);
 	}
 
+	/*
+	 * pop a element form que if empty return false 
+	 */
 	bool pop(T & data){
 		bool ret = true;
 		

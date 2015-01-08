@@ -51,20 +51,32 @@ public:
 		put_list(__list.load());
 	}
 
+	/*
+	 * que is empty
+	 */
 	bool empty(){
 		return (__list.load()->_size.load() == 0);
 	}
 
+	/*
+	 * get que size
+	 */
 	std::size_t size(){
 		return __list.load()->_size.load();
 	}
 
+	/*
+	 * clear this que
+	 */
 	void clear(){
 		_list * _new_list = get_list();
 		_list * _old_list = __list.exchange(_new_list);
 		put_list(_old_list);
 	}
 
+	/*
+	 * push a element to que
+	 */
 	void push(const T & data){
 		_list_node * _node = get_node(data);
 
@@ -97,6 +109,9 @@ public:
 		_hazard_list.release(_hp_list);
 	}
 
+	/*
+	 * pop a element form que if empty return false 
+	 */
 	bool pop(T & data){
 		bool ret = true;
 		

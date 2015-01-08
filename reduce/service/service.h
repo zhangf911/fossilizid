@@ -40,10 +40,16 @@ public:
 public:
 	boost::uint64_t unixtime();
 
-public:	
+public:
+	/*
+	 * initialise service
+	 */
 	void init();
 
-	void join();
+	/*
+	 * drive service work
+	 */
+	void poll();
 
 public:
 	boost::shared_ptr<session> create_rpcsession(uuid epuuid, remoteq::CHANNEL ch);

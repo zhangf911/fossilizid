@@ -29,6 +29,9 @@ public:
 	~remote_obj();
 
 public:
+	/*
+	 * call rpc mothed 
+	 */
 	void call_rpc_mothed(Json::Value & value, boost::function<void(Json::Value & ) > rpccallback);
 
 private:

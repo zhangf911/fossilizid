@@ -12,6 +12,9 @@
 namespace Fossilizid{
 namespace remoteq {
 
+/*
+ * create a QUEUE
+ */
 QUEUE queue();
 
 enum event_type{
@@ -26,6 +29,9 @@ struct EVENT{
 	event_type type;
 };
 
+/*
+ * get EVENT from QUEUE
+ */
 EVENT queue(QUEUE que);
 
 } /* namespace remoteq */

@@ -28,6 +28,9 @@ public:
 	~locale_obj();
 
 public:
+	/*
+	 * register rpc mothed
+	 */
 	void register_rpc_mothed(std::pair<std::string, boost::function<Json::Value(Json::Value &) > > rpc_mothed);
 
 private:

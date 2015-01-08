@@ -61,6 +61,9 @@ public:
 		}
 	}
 
+	/*
+	 * iterates the map
+	 */
 	void for_each(boost::function<void(V var) > handle ){
 		for(int i = 0; i < mask; i++){
 			boost::shared_lock<boost::shared_mutex> shared_lock(_hash_array[i]._mu);
@@ -74,6 +77,9 @@ public:
 		}
 	}
 
+	/*
+	 * set a element (key == key) value = value
+	 */
 	bool set(K key, V value){
 		unsigned int hash_value = hash(key, mask);
 		bucket * _bucket = (bucket *)&_hash_array[hash_value];
@@ -92,7 +98,10 @@ public:
 
 		return true;
 	}
-	
+		
+	/*
+	 * insert a element to hash_map if key not exist return false
+	 */
 	void insert(K key, V value){
 		unsigned int hash_value = hash(key, mask);
 		bucket * _bucket = (bucket *)&_hash_array[hash_value];
@@ -125,6 +134,9 @@ public:
 		_size++;
 	}
 
+	/*
+	 * find a element for key == key from hash_map if key not exist return false
+	 */
 	bool search(K key, V &value){
 		unsigned int hash_value = hash(key, mask);
 		bucket * _bucket = (bucket *)&_hash_array[hash_value];
@@ -147,6 +159,9 @@ public:
 		return true;
 	}
 
+	/*
+	 * delete a element from hash_map if key not exist return false
+	 */
 	bool erase(K key){
 		unsigned int hash_value = hash(key, mask);
 		bucket * _bucket = (bucket *)&_hash_array[hash_value];
@@ -172,6 +187,9 @@ public:
 		return true;
 	}
 
+	/*
+	 * get hash_map size
+	 */
 	unsigned int size(){
 		return _size.load();
 	}

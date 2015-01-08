@@ -21,6 +21,10 @@ struct client{
 	struct { int channelcount; int len; char buf[4096]; } inputbuff[16];
 	boost::atomic_int begin, end;
 
+	/*
+	 * read voice data from data
+	 * be used for play
+	 */
 	bool read_buff(char * & outputbuff, short & channelcount, int &len){
 		while (1){
 			int _end = end.load();
@@ -45,6 +49,10 @@ struct client{
 		return true;
 	}
 
+	/*
+	 * write voice data to buff
+	 * waiting for the play
+	 */
 	void write_buff(char * buff, int buflen, short channelcount){
 		while (1){
 			int _begin = begin.load();
@@ -69,14 +77,29 @@ struct client{
 
 };
 
+/*
+ * create user
+ */
 client * create_client(int index = 0);
 
+/*
+ * get client index == index
+ */
 client * get_client(int index);
 
+/*
+ * iterator client
+ */
 typedef void(*handle_iterator_client)(std::map<int, client*> & set);
 void iterator_client_set(handle_iterator_client fn);
 void iterator_client_set(std::function<void(std::map<int, client*> &) > fn);
 
+/*
+ * destroy client
+ */
 bool destroy_client(int index);
 
+/*
+ * get client count
+ */
 int client_count();

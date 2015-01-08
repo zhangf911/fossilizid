@@ -55,21 +55,33 @@ public:
 	~swapque(){
 		put_que(__que.load());
 	}
-
+		
+	/*
+	 * que is empty
+	 */
 	bool empty(){
 		return (__que.load()->_size.load() == 0);
 	}
-
+		
+	/*
+	 * get que size
+	 */
 	std::size_t size(){
 		return __que.load()->_size.load();
 	}
-
+		
+	/*
+	 * clear this que
+	 */
 	void clear(){
 		_que * _new_que = get_que();
 		_que * _old_que = __que.exchange(_new_que);
 		put_que(_old_que);
 	}
-
+		
+	/*
+	 * push a element to que
+	 */
 	void push(const T & data){
 		_que_node * _node = get_node(data);
 
@@ -89,7 +101,10 @@ public:
 		}
 		_hazard_que_sys.release(_hazard_que);
 	}
-
+		
+	/*
+	 * pop a element form que if empty return false 
+	 */
 	bool pop(T & data){
 		if (__que.load()->_size.load() == 0){
 			return false;

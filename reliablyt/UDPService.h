@@ -9,12 +9,13 @@ public:
 	UDPService(char * ip, short port);
 	~UDPService();
 
+	/*
+	 * connect signal, detonate by a session connect in 
+	 */
 	boost::signals2::signal<void(boost::shared_ptr<UDPConnect>) > sigConnect;
 
 private:
 	virtual void handle_receive_from(char * recvbuf, int len, sockaddr_in & remote_addr, int error);
-
-	//virtual void handle_send_to(const boost::system::error_code& error, size_t bytes_recvd);
 
 	void onConnectreq(sockaddr_in & remote_addr, boost::uint32_t serial);
 

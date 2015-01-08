@@ -21,10 +21,24 @@ namespace context{
 typedef LPVOID context;
 #endif
 
+/*
+ * convert current thread to context
+ */
 inline context makecontext(){ return ConvertThreadToFiber(0); }
 
+/*
+ * create a new context
+ */
 context getcontext(boost::function<void()> fn);
+
+/*
+ * release context
+ */
 void closecontext(context ct);
+
+/*
+ * switch to a context
+ */
 void yield(context ct);
 
 } /* namespace context */

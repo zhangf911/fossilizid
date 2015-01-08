@@ -18,6 +18,9 @@ public:
 	~factory();
 
 public:
+	/*
+	 * create count objects type is T
+	 */
 	template<class T, typename ...Tlist>
 	static T * create(int count, Tlist&& ... var){
 		T * p = (T*)mempool::allocator(count * sizeof(T));
@@ -29,6 +32,9 @@ public:
 		return p;
 	}
 
+	/*
+	 * create a objects type is T
+	 */
 	template<class T, typename ...Tlist>
 	static T * create(Tlist&& ... var){
 		T * p = mempool::allocator(sizeof(T));
@@ -38,6 +44,9 @@ public:
 		return p;
 	}
 
+	/*
+	 * release count objects type is T
+	 */
 	template<class T>
 	static void release(T * p, int count){
 		for (int i = 0; i < count; i++){

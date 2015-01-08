@@ -37,10 +37,17 @@ public:
 	~obj();
 
 public:
+	/*
+	 * get class name
+	 */
 	std::string class_name();
 
+	/*
+	 * get object id
+	 */
 	uuid objid();
 
+public:
 	void push_rpc_event(std::pair<boost::shared_ptr<session>, Json::Value> & _event);
 
 public:

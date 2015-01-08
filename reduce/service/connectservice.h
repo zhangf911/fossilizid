@@ -18,6 +18,9 @@ public:
 	~connectservice();
 	
 public:
+	/*
+	 * connect to a remote service
+	 */
 	boost::shared_ptr<session> connect(char * ip, short port);
 
 private:

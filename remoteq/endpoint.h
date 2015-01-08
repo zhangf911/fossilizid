@@ -12,6 +12,9 @@
 namespace Fossilizid{
 namespace remoteq {
 
+/*
+ * create a endpoint
+ */
 ENDPOINT endpoint(char * ip, short port);
 
 } /* namespace remoteq */

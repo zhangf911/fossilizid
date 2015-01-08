@@ -129,7 +129,7 @@ void service::init(){
 	_thread_group.create_thread(run_network);
 }
 
-void service::join(){
+void service::poll(){
 	context::context _context = get_current_context();
 
 	context::context * _loop_main_context = tsp_loop_main_context.get();

@@ -10,6 +10,9 @@ public:
 	UDPClient(char * ip, short port);
 	~UDPClient();
 
+	/*
+	 * connect to a remote service
+	 */
 	bool connect(char * ip, short port);
 
 private:

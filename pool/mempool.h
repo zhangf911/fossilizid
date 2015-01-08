@@ -26,7 +26,14 @@ public:
 	~mempool();
 
 public:
+	/*
+	 * allocator a memory length = len
+	 */
 	static void * allocator(int len);
+
+	/*
+	 * deallocator a memory length = len
+	 */
 	static void deallocator(void * buff, int len);
 
 private:

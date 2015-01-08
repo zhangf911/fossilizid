@@ -1,5 +1,10 @@
 #include <portaudio.h>
 
+/*
+ * Initialize portaudio
+ * Initialize in constructor
+ * Terminate in destructor
+ */
 class paInit{
 public:
 	paInit(){
