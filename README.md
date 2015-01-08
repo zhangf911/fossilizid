@@ -1,6 +1,22 @@
 ## fossilizid ##
 
-fossilizid: a open source c++ library start by wmn0377@corp.netease.com
+fossilizid: a open source c++ library start by qianqians
+
+----------
+
+Getting Started
+---------------
+
+clone this repo
+
+git clone http://git.mt.nie.netease.com/wmn0377/fossilizid
+
+
+----------
+
+Document
+--------
+http://git.mt.nie.netease.com/wmn0377/fossilizid/fossilizid/doc
 
 ---
 container: lock-free structure
@@ -31,3 +47,9 @@ reliablyt: udp reliably transmission
 
 ----------
 vchat: voice chat framework
+
+----------
+
+License
+-------
+This project is under the GPL v2 License. See the LICENSE file for the full license text.
