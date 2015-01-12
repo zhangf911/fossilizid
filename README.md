@@ -9,14 +9,14 @@ Getting Started
 
 clone this repo
 
-git clone http://git.mt.nie.netease.com/wmn0377/fossilizid
+git clone https://github.com/NetEase/fossilizid
 
 
 ----------
 
 Document
 --------
-http://git.mt.nie.netease.com/wmn0377/fossilizid/fossilizid/doc
+https://github.com/NetEase/fossilizid/tree/master/doc
 
 ---
 container: lock-free structure
