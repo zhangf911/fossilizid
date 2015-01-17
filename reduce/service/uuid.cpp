@@ -68,13 +68,18 @@ uuid UUID(){
 	}
 
 	{
-		_uuid[14] = (char)rand() + 1;
+		_uuid[14] = (char)rand();
 	}
 
 	{
-		static unsigned char key = 1;
+		static volatile unsigned char key = 1;
 		_uuid[15] = key++;
-		key = (key == 0) ? 1 : key;
+	}
+
+	for (int i = 0; i < 16; i++){
+		if (_uuid[i] == 0){
+			_uuid[i] = 1;
+		}
 	}
 
 	return _uuid;
