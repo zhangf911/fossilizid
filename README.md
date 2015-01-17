@@ -53,7 +53,9 @@ vchat: voice chat framework
 Contact me
 ----------
 
-anxiangqq@gmail.com
+mail:anxiangqq@gmail.com
+qq:451517996
+fossilizidÌÖÂÛÈº:257079284
 
 ----------
 License
