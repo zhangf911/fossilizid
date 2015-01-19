@@ -53,7 +53,9 @@ vchat: voice chat framework
 Contact me
 ----------
 
-anxiangqq@gmail.com
+ - mail: anxiangqq@gmail.com 
+ - QQ: 451517996 
+ - fossilizid QQ group: 257079284
 
 ----------
 License
